@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Field Visit - Golder Tours & Travels</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { margin: 0; background: #f4f7f6; font-family: 'Poppins', sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .main-wrapper { display: flex; flex: 1; height: calc(100vh - 70px); }
+        
+        /* Left Sidebar */
+        .sidebar { width: 260px; background: #2c3e50; color: white; display: flex; flex-direction: column; padding-top: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+        .sidebar h3 { font-size: 14px; text-transform: uppercase; padding: 0 20px; color: #95a5a6; margin-bottom: 10px; letter-spacing: 1px; }
+        .sidebar a { padding: 12px 20px; color: #bdc3c7; text-decoration: none; font-size: 15px; display: flex; align-items: center; gap: 10px; transition: 0.3s; border-left: 4px solid transparent; }
+        .sidebar a:hover, .sidebar a.active { background: #34495e; color: white; border-left-color: #3498db; }
+
+        /* Content Area */
+        .content-area { flex: 1; padding: 30px; overflow-y: auto; background: #f9fbfd; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Dashboard Cards */
+        .dash-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .dash-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 5px solid #3498db; }
+        .dash-card h4 { margin: 0; color: #7f8c8d; font-size: 14px; }
+        .dash-card h2 { margin: 10px 0 0 0; color: #2c3e50; font-size: 28px; }
+
+        /* Chart Container */
+        .chart-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 30px; height: 380px; }
+
+        /* Form Grid */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-weight: 600; font-size: 13px; margin-bottom: 5px; color: #444; }
+        .form-group input, .form-group select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .btn-submit { background: #3498db; color: white; border: none; padding: 12px 20px; font-weight: 600; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        .btn-submit:hover { background: #2980b9; }
+
+        /* Segment Container */
+        .segment-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .segment-chip { background: white; padding: 8px 16px; border-radius: 20px; border: 1px solid #cbd5e1; cursor: pointer; font-weight: 600; font-size: 13px; color: #475569; transition: all 0.2s; }
+        .segment-chip.active, .segment-chip:hover { background: #3498db; color: white; border-color: #3498db; }
+
+        /* Tables */
+        .table-responsive { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #edf2f7; }
+        th { background: #f8fafc; color: #334155; font-weight: 600; }
+        tr:hover { background: #f8fafc; }
+        .card-img-preview { width: 45px; height: 32px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc; cursor: pointer; }
+        
+        header { height: 70px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; }
+        .navbar { width: 100%; padding: 0 30px; display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="navbar">
+            <div class="logo">
+                <img src="logo.png" alt="Logo" style="height: 40px;">
+            </div>
+            <nav>
+                <ul style="list-style: none; display: flex; gap: 20px; margin: 0;">
+                    <li><a href="index.html" style="text-decoration: none; color: #333; font-weight: 600;">Home</a></li>
+                    <li><a href="projects.html" style="text-decoration: none; color: #333; font-weight: 600;">Projects</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="main-wrapper">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <h3>Sales Panel</h3>
+            <a href="#" class="nav-link active" onclick="switchTab('dashboard', event)">📊 Dashboard</a>
+            <a href="#" class="nav-link" onclick="switchTab('visits', event)">📍 Field Visits</a>
+            <a href="#" class="nav-link" onclick="switchTab('contacts', event)">📇 Contacts & Cards</a>
+        </div>
+
+        <!-- Right Content Area -->
+        <div class="content-area">
+            
+            <!-- 1. DASHBOARD TAB -->
+            <div id="dashboard" class="tab-content active">
+                <h2 style="margin-top: 0; color: #1e293b;">Dashboard & Field Report</h2>
+                <p style="color: #64748b; margin-bottom: 25px;">Month-wise field visit ebong contact collection er overview.</p>
+                
+                <!-- Total Number Cards -->
+                <div class="dash-cards">
+                    <div class="dash-card">
+                        <h4>Total Field Visits</h4>
+                        <h2 id="totalVisitsCount">0</h2>
+                    </div>
+                    <div class="dash-card" style="border-left-color: #2ecc71;">
+                        <h4>Total Contacts Collected</h4>
+                        <h2 id="totalContactsCount">0</h2>
+                    </div>
+                </div>
+
+                <!-- Monthly Bar Chart -->
+                <div class="chart-container">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+
+                <div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                    <h3 style="margin-top:0; color:#334155;">Recent Field Visits</h3>
+                    <div id="recentVisitList" style="font-size: 14px; color: #475569;"></div>
+                </div>
+            </div>
+
+            <!-- 2. FIELD VISITS TAB -->
+            <div id="visits" class="tab-content">
+                <h2 style="margin-top: 0; color: #1e293b;">Daily Field Visit Log</h2>
+                <p style="color: #64748b; margin-bottom: 25px;">Kon institution ba company te visit korchen tar nam ebong area likhe save korun.</p>
+
+                <form id="visitForm" class="form-grid">
+                    <div class="form-group">
+                        <label>Visit Date</label>
+                        <input type="date" id="visitDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Area / Location</label>
+                        <input type="text" id="visitArea" placeholder="e.g. Motijheel, Uttara" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Company / Institution Visited</label>
+                        <input type="text" id="visitCompany" placeholder="e.g. BUET, Labaid Hospital" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Purpose / Note</label>
+                        <input type="text" id="visitPurpose" placeholder="e.g. Initial meeting / Proposal drop">
+                    </div>
+                    <div class="form-group full-width">
+                        <button type="submit" class="btn-submit">+ Save Visit Log</button>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table id="visitTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Area</th>
+                                <th>Company / Institution</th>
+                                <th>Purpose / Note</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="visitTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. CONTACTS & CARDS TAB -->
+            <div id="contacts" class="tab-content">
+                <h2 style="margin-top: 0; color: #1e293b;">Visiting Card & Contact Directory</h2>
+                <p style="color: #64748b; margin-bottom: 25px;">Visit theke pawa contact gulo segment/category name nijer moto manually likhe add korun.</p>
+
+                <form id="contactForm" class="form-grid">
+                    <div class="form-group">
+                        <label>Segment / Category (Manual)</label>
+                        <input type="text" id="contactSegment" placeholder="e.g. BUET, Labaid Hospital" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Company Name</label>
+                        <input type="text" id="contactCompany" placeholder="e.g. BUET CSE Dept" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Person Name</label>
+                        <input type="text" id="contactPerson" placeholder="e.g. Dr. Rahman" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Designation</label>
+                        <input type="text" id="contactDesignation" placeholder="e.g. Professor / Manager">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="contactPhone" placeholder="e.g. 017xxxxxxxx" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Visiting Card Image</label>
+                        <input type="file" id="cardImage" accept="image/*">
+                    </div>
+                    <div class="form-group full-width">
+                        <button type="submit" class="btn-submit">+ Save Contact & Card</button>
+                    </div>
+                </form>
+
+                <div style="margin: 20px 0 10px 0; font-weight: 600; color: #334155;">Filter by Segment:</div>
+                <div class="segment-container" id="segmentFilterChips">
+                    <div class="segment-chip active" onclick="filterContactSegment('All', this)">All Contacts</div>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="contactTable">
+                        <thead>
+                            <tr>
+                                <th>Segment</th>
+                                <th>Company</th>
+                                <th>Contact Person</th>
+                                <th>Phone</th>
+                                <th>Card</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contactTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        let currentContactSegment = 'All';
+        let myChart = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('visitDate').valueAsDate = new Date();
+            loadAllData();
+
+            // 1. Visit Form Handler
+            document.getElementById('visitForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const newVisit = {
+                    id: Date.now(),
+                    date: document.getElementById('visitDate').value,
+                    area: document.getElementById('visitArea').value,
+                    company: document.getElementById('visitCompany').value,
+                    purpose: document.getElementById('visitPurpose').value
+                };
+
+                let visits = JSON.parse(localStorage.getItem('golderFieldVisits')) || [];
+                visits.unshift(newVisit);
+                localStorage.setItem('golderFieldVisits', JSON.stringify(visits));
+
+                this.reset();
+                document.getElementById('visitDate').valueAsDate = new Date();
+                loadAllData();
+                
+                alert('Visit log saved successfully!');
+            });
+
+            // 2. Contact Form Handler
+            document.getElementById('contactForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const segment = document.getElementById('contactSegment').value.trim();
+                const company = document.getElementById('contactCompany').value;
+                const person = document.getElementById('contactPerson').value;
+                const designation = document.getElementById('contactDesignation').value;
+                const phone = document.getElementById('contactPhone').value;
+                const imageInput = document.getElementById('cardImage');
+
+                const reader = new FileReader();
+                if (imageInput.files && imageInput.files[0]) {
+                    reader.readAsDataURL(imageInput.files[0]);
+                }
+
+                reader.onload = function() {
+                    saveContactData(segment, company, person, designation, phone, reader.result || '');
+                };
+
+                if (!imageInput.files || !imageInput.files[0]) {
+                    saveContactData(segment, company, person, designation, phone, '');
+                }
+            });
+        });
+
+        function saveContactData(segment, company, person, designation, phone, imageData) {
+            const newContact = {
+                id: Date.now(),
+                segment,
+                company,
+                person,
+                designation,
+                phone,
+                imageData,
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            let contacts = JSON.parse(localStorage.getItem('golderSalesContacts')) || [];
+            contacts.unshift(newContact);
+            localStorage.setItem('golderSalesContacts', JSON.stringify(contacts));
+
+            document.getElementById('contactForm').reset();
+            loadAllData();
+            alert('Contact & Visiting Card saved successfully!');
+        }
+
+        function loadAllData() {
+            let visits = JSON.parse(localStorage.getItem('golderFieldVisits')) || [];
+            let contacts = JSON.parse(localStorage.getItem('golderSalesContacts')) || [];
+
+            document.getElementById('totalVisitsCount').innerText = visits.length;
+            document.getElementById('totalContactsCount').innerText = contacts.length;
+
+            renderMonthlyChart(visits, contacts);
+
+            const recentDiv = document.getElementById('recentVisitList');
+            if (visits.length === 0) {
+                recentDiv.innerHTML = '<p style="color:#888;">Kono visit log ekhono nei.</p>';
+            } else {
+                let html = '<ul style="margin:0; padding-left:20px;">';
+                visits.slice(0, 5).forEach(v => {
+                    html += `<li><b>${v.date}</b> — Institution: <b>${v.company}</b> (${v.area}) — <span style="color:green;">Covered</span></li>`;
+                });
+                html += '</ul>';
+                recentDiv.innerHTML = html;
+            }
+
+            displayVisits(visits);
+            displayContacts(contacts);
+            buildSegmentChips(contacts);
+        }
+
+        function renderMonthlyChart(visits, contacts) {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            let visitCounts = new Array(12).fill(0);
+            let contactCounts = new Array(12).fill(0);
+
+            visits.forEach(v => {
+                if(v.date) {
+                    let monthIndex = new Date(v.date).getMonth();
+                    visitCounts[monthIndex]++;
+                }
+            });
+
+            contacts.forEach(c => {
+                if(c.date) {
+                    let monthIndex = new Date(c.date).getMonth();
+                    contactCounts[monthIndex]++;
+                }
+            });
+
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        { label: 'Field Visits', data: visitCounts, backgroundColor: '#3498db', borderRadius: 4 },
+                        { label: 'Contacts Collected', data: contactCounts, backgroundColor: '#2ecc71', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Month-wise Field Visits & Contacts Report' }
+                    },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+
+        function displayVisits(visits) {
+            const tbody = document.getElementById('visitTableBody');
+            tbody.innerHTML = '';
+            if (visits.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Kono visit record nei.</td></tr>`;
+                return;
+            }
+            visits.forEach(v => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${v.date}</td>
+                    <td><b>${v.area}</b></td>
+                    <td>${v.company}</td>
+                    <td>${v.purpose || '-'}</td>
+                    <td><button onclick="deleteVisit(${v.id})" style="background:#e74c3c; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function displayContacts(contacts) {
+            const tbody = document.getElementById('contactTableBody');
+            tbody.innerHTML = '';
+
+            let filtered = contacts;
+            if (currentContactSegment !== 'All') {
+                filtered = contacts.filter(c => c.segment.toLowerCase() === currentContactSegment.toLowerCase());
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #777;">Ei segment-e kono contact nei.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(c => {
+                const tr = document.createElement('tr');
+                let imgHtml = c.imageData ? `<img src="${c.imageData}" class="card-img-preview" onclick="window.open('${c.imageData}')" title="Click to view">` : '<span style="color:#aaa; font-size:12px;">No Card</span>';
+
+                tr.innerHTML = `
+                    <td><b><span style="color: #2980b9;">${c.segment}</span></b></td>
+                    <td>${c.company}</td>
+                    <td>${c.person} <br><small style="color:#666;">${c.designation || ''}</small></td>
+                    <td><a href="tel:${c.phone}" style="color:#2980b9; text-decoration:none;">${c.phone}</a></td>
+                    <td>${imgHtml}</td>
+                    <td><button onclick="deleteContact(${c.id})" style="background:#e74c3c; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function buildSegmentChips(contacts) {
+            const container = document.getElementById('segmentFilterChips');
+            const segments = [...new Set(contacts.map(c => c.segment))];
+            
+            let html = `<div class="segment-chip ${currentContactSegment === 'All' ? 'active' : ''}" onclick="filterContactSegment('All', this)">All Contacts</div>`;
+            segments.forEach(seg => {
+                let activeClass = currentContactSegment.toLowerCase() === seg.toLowerCase() ? 'active' : '';
+                html += `<div class="segment-chip ${activeClass}" onclick="filterContactSegment('${seg}', this)">${seg}</div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function filterContactSegment(segment, element) {
+            currentContactSegment = segment;
+            document.querySelectorAll('.segment-chip').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            let contacts = JSON.parse(localStorage.getItem('golderSalesContacts')) || [];
+            displayContacts(contacts);
+        }
+
+        function deleteVisit(id) {
+            if(confirm('Apni ki ei visit log-ti delete korte chan?')) {
+                let visits = JSON.parse(localStorage.getItem('golderFieldVisits')) || [];
+                visits = visits.filter(v => v.id !== id);
+                localStorage.setItem('golderFieldVisits', JSON.stringify(visits));
+                loadAllData();
+            }
+        }
+
+        function deleteContact(id) {
+            if(confirm('Apni ki ei contact-ti delete korte chan?')) {
+                let contacts = JSON.parse(localStorage.getItem('golderSalesContacts')) || [];
+                contacts = contacts.filter(c => c.id !== id);
+                localStorage.setItem('golderSalesContacts', JSON.stringify(contacts));
+                loadAllData();
+            }
+        }
+
+        function switchTab(tabId, event) {
+            event.preventDefault();
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.sidebar a').forEach(link => link.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
