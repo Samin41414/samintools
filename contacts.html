@@ -109,7 +109,7 @@
                 </div>
 
                 <div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                    <h3 style="margin-top:0; color:#334155;">Recent Field Visits</h3>
+                    <h3 id="recentVisitTitle" style="margin-top:0; color:#334155;">Recent Field Visits</h3>
                     <div id="recentVisitList" style="font-size: 14px; color: #475569;"></div>
                 </div>
             </div>
@@ -224,6 +224,11 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('visitDate').valueAsDate = new Date();
+            
+            // Set Dynamic Running Month Name for Recent Visits Heading
+            const currentMonthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(new Date());
+            document.getElementById('recentVisitTitle').innerText = `${currentMonthName} Field Visits`;
+
             loadAllData();
 
             // 1. Visit Form Handler
@@ -386,7 +391,7 @@
         }
 
         function displayContacts(contacts) {
-            const tbody = document.getElementById('contactTableBody');
+            const tbody = document.getElementById('contactTableButton') || document.getElementById('contactTableBody');
             tbody.innerHTML = '';
 
             let filtered = contacts;
